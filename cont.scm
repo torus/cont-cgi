@@ -2,6 +2,7 @@
 
 (use www.cgi)
 (use text.html-lite)
+(use text.tree)
 (use sxml.serializer)
 
 (define *COUNT* 0)
@@ -86,16 +87,22 @@
 (define (main args)
   (cgi-main
    (lambda (params)
-     `(,(cgi-header)
-       ,(srl:sxml->xml
-	 `(*TOP* (*PI* XML "version=\"1.0\" encoding=\"UTF-8\"")
-		 (res ,@(let1 p (cgi-get-parameter "p" params)
-			  (if p
-			      (let1 arg-list (with-input-from-string p read)
-				(apply do-continuation arg-list))
-			      (list ((cont-lambda () (task-list 'todo)))))
-			  )))
-       )))))
+     (let1 p (cgi-get-parameter "p" params)
+       (if p
+	   `(,(cgi-header)
+	     ,(srl:sxml->xml
+	       `(*TOP* (*PI* XML "version=\"1.0\" encoding=\"UTF-8\"")
+		       (res ,@(let1 arg-list (with-input-from-string p read)
+				      (apply do-continuation arg-list))
+			    ))))
+	   `(,(cgi-header)
+	     ,(html-doctype)
+	     ,(html:html
+	       (html:head (html:title "Task list"))
+	       (html:body
+		(html:p (tree->string ((cont-lambda () (task-list 'todo)))))
+		)
+       )))))))
 
 ;;;
 ;; (put 'cont-lambda 'scheme-indent-function 1)
