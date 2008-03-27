@@ -22,29 +22,12 @@
        (list 'cont
 	     (with-output-to-string
 	       (cut write `(,,index ,@x)))))))
-;;     `(lambda x
-;;        (with-output-to-string
-;; 	 (write #?=`(cont ,,index ,@x))))))
 
 (define-macro (cont-lambda args . body)
   `(make-cont (lambda ,args ,@body)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; definitions
-
-;; (define exp-part
-;;   (cont-lambda
-;;    (x max-n n p prev-fact-n)
-;;    (if (> n max-n)
-;;        ((cont-lambda (res) (print "e = " res)) p)
-;;        (let* ((fact-n (* n prev-fact-n))
-;; 	      (v (/. (expt x n) fact-n)))
-;; 	 (exp-part x max-n (+ n 1) (+ p v) fact-n)))))
-
-;; (define calc-e				; default entry point
-;;   (cont-lambda () (exp-part 1 4 1 0 1)))
-
-;; task: number
 
 (define proccess-task
   (cont-lambda (cmd index)
@@ -100,14 +83,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; main
 
-;; (define (main cmdline)
-;;   (let1 args (cdr cmdline)
-;;     (if (null? args)
-;; 	(print (task-list 'todo))			; default entry point
-;; 	(let1 arg-list (map (cut with-input-from-string <> read) args)
-;; 	  (apply do-continuation arg-list)
-;; 	  ))))
-
 (define (main args)
   (cgi-main
    (lambda (params)
@@ -118,7 +93,7 @@
 			  (if p
 			      (let1 arg-list (with-input-from-string p read)
 				(apply do-continuation arg-list))
-			      #?=(list ((cont-lambda () (task-list 'todo)))))
+			      (list ((cont-lambda () (task-list 'todo)))))
 			  )))
        )))))
 
