@@ -73,12 +73,10 @@
   (cadr (get-task index)))
 
 (define (task-edit index newcontent)
-  (set-car! (cdr (get-task index)) newcontent)
-  #?=*tasks*)
+  (set-car! (cdr (get-task index)) newcontent))
 
 (define (task-cancel index)
-  (set-car! (get-task index) 'canceld)
-  #?=*tasks*)
+  (set-car! (get-task index) 'canceld))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -93,7 +91,7 @@
 	     ,(srl:sxml->xml
 	       `(*TOP* (*PI* XML "version=\"1.0\" encoding=\"UTF-8\"")
 		       (res ,@(let1 arg-list (with-input-from-string p read)
-				      (apply do-continuation arg-list))
+				(apply do-continuation arg-list))
 			    ))))
 	   `(,(cgi-header)
 	     ,(html-doctype)
@@ -102,7 +100,7 @@
 	       (html:body
 		(html:p (tree->string ((cont-lambda () (task-list 'todo)))))
 		)
-       )))))))
+	       )))))))
 
 ;;;
 ;; (put 'cont-lambda 'scheme-indent-function 1)
