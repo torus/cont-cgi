@@ -89,7 +89,7 @@
    (lambda (params)
      (let1 p (cgi-get-parameter "p" params)
        (if p
-	   `(,(cgi-header)
+	   `(,(cgi-header :content-type "text/xml")
 	     ,(srl:sxml->xml
 	       `(*TOP* (*PI* XML "version=\"1.0\" encoding=\"UTF-8\"")
 		       (res ,@(let1 arg-list (with-input-from-string p read)
