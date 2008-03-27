@@ -118,9 +118,8 @@
 			  (if p
 			      (let1 arg-list (with-input-from-string p read)
 				(apply do-continuation arg-list))
-			      (task-list 'todo)))
-		      )
-		 )
+			      #?=(list ((cont-lambda () (task-list 'todo)))))
+			  )))
        )))))
 
 ;;;
