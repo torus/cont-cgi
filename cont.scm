@@ -77,7 +77,7 @@
   '((ok)))
 
 (define (task-cancel index)
-  (set-car! (get-task index) 'canceld)
+  (set-car! (get-task index) 'canceled)
   '((ok)))
 
 
