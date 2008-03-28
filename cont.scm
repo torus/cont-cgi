@@ -100,7 +100,11 @@
 	     ,(html:html
 	       (html:head (html:title "Task list"))
 	       (html:body
-		(html:p (tree->string ((cont-lambda () (task-list 'todo)))))
+		(html:div :id "main")
+		(html:div :id "cont"
+			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
+		(html:pre :id "debug")
+		(html:script :src "./script.js")
 		)
 	       )))))))
 
