@@ -57,7 +57,25 @@ function gen_task (cont) {
 	    var dom = xmlhttp.responseXML;
 	    var nodes = dom.documentElement.childNodes;
 
+	    debug_out ("nodes: " + nodes);
 
+	    var elems = [];
+	    (function (i) {
+// 		debug_out ("nodes.length: " + nodes.length);
+// 		debug_out ("callee: " + arguments.callee);
+		if (i < nodes.length) {
+// 			debug_out ("elem: " + nodes[i]);
+		    if (nodes[i].nodeType == 1) {
+			elems.push (nodes[i]);
+		    }
+		    arguments.callee (i + 1);
+		} else {
+		    return;
+		}
+	    }) (0);
+
+	    debug_out ("elems: " + elems);
 	}
     }
+    xmlhttp.send (null);
 }
