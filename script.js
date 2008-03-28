@@ -61,10 +61,7 @@ function gen_task (cont) {
 
 	    var elems = [];
 	    (function (i) {
-// 		debug_out ("nodes.length: " + nodes.length);
-// 		debug_out ("callee: " + arguments.callee);
 		if (i < nodes.length) {
-// 			debug_out ("elem: " + nodes[i]);
 		    if (nodes[i].nodeType == 1) {
 			elems.push (nodes[i]);
 		    }
