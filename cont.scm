@@ -73,10 +73,12 @@
   (cadr (get-task index)))
 
 (define (task-edit index newcontent)
-  (set-car! (cdr (get-task index)) newcontent))
+  (set-car! (cdr (get-task index)) newcontent)
+  '((ok)))
 
 (define (task-cancel index)
-  (set-car! (get-task index) 'canceld))
+  (set-car! (get-task index) 'canceld)
+  '((ok)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
