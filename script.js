@@ -75,40 +75,34 @@ function gen_task (cont, target_elem) {
 	    var text = document.createTextNode (elems[0].firstChild.nodeValue);
 	    target_elem.appendChild (text);
 
-
-	    // cancel
-	    var text_cancel = document.createTextNode ("cancel");
-	    var cancel = document.createElement ("a");
-	    var cont_cancel = elems[2].firstChild.nodeValue;
-	    cancel.setAttribute ("href",
-				 "javascript:(function () {click_cancel("
-				 + cont_cancel + ")})()");
-	    cancel.setAttribute ("class", "cancel");
-	    cancel.appendChild (text_cancel);
-	    
-	    target_elem.appendChild (cancel);
-	    debug_out ("cont_cancel: " + cont_cancel);
-	    debug_out ("cancel: " + typeof (cancel.setAttribute));
-	    debug_out ("text_cancel: " + text_cancel);
-
-
-	    // done
-	    var text_done = document.createTextNode ("done");
-	    var done = document.createElement ("a");
-	    var cont_done = elems[3].firstChild.nodeValue;
-	    done.setAttribute ("href",
-				 "javascript:(function () {click_done("
-				 + cont_done + ")})()");
-	    done.setAttribute ("class", "done");
-	    done.appendChild (text_done);
-	    
-	    target_elem.appendChild (done);
-	    debug_out ("cont_done: " + cont_done);
-	    debug_out ("done: " + typeof (done.setAttribute));
-	    debug_out ("text_done: " + text_done);
+	    make_action ("cancel",
+			 elems[2].firstChild.nodeValue, click_cancel, target_elem);
+	    make_action ("done", elems[3].firstChild.nodeValue, click_done, target_elem);
 	}
     }
     xmlhttp.send (null);
+}
+
+function make_action (act, cont, func, target_elem) {
+    var text_done = document.createTextNode (act);
+    var done = document.createElement ("span");
+    var cont_done = cont;
+    done.onclick = function () {func (cont_done, target_elem)};
+    done.setAttribute ("class", act);
+    done.appendChild (text_done);
+	    
+    target_elem.appendChild (done);
+    debug_out ("cont_done: " + cont_done);
+    debug_out ("done: " + typeof (done.setAttribute));
+    debug_out ("text_done: " + text_done);
+}
+
+function click_done (cont, target_elem) {
+    debug_out ("DONE! " + [cont, target_elem]);
+}
+
+function click_cancel (cont, target_elem) {
+    debug_out ("CANCEL! " + [cont, target_elem]);
 }
 
 function filter_element_nodes (nodes) {
