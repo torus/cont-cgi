@@ -65,36 +65,29 @@ function gen_task (cont, target_elem) {
 	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 	    var dom = xmlhttp.responseXML;
 	    var nodes = dom.documentElement.childNodes;
-
-	    debug_out ("nodes: " + nodes);
-
 	    var elems = filter_element_nodes (nodes);
-
-	    debug_out ("elems: " + elems);
-
 	    var text = document.createTextNode (elems[0].firstChild.nodeValue);
+
 	    target_elem.appendChild (text);
 
-	    make_action ("cancel",
+	    make_action ("cancel", "[cancel]",
 			 elems[2].firstChild.nodeValue, click_cancel, target_elem);
-	    make_action ("done", elems[3].firstChild.nodeValue, click_done, target_elem);
+	    make_action ("done", "[done]",
+			 elems[3].firstChild.nodeValue, click_done, target_elem);
 	}
     }
     xmlhttp.send (null);
 }
 
-function make_action (act, cont, func, target_elem) {
-    var text_done = document.createTextNode (act);
-    var done = document.createElement ("span");
-    var cont_done = cont;
-    done.onclick = function () {func (cont_done, target_elem)};
-    done.setAttribute ("class", act);
-    done.appendChild (text_done);
+function make_action (act, disp, cont, func, target_elem) {
+    var text_act = document.createTextNode (disp);
+    var act = document.createElement ("span");
+    var cont_act = cont;
+    act.onclick = function () {func (cont_act, target_elem)};
+    act.setAttribute ("class", act);
+    act.appendChild (text_act);
 	    
-    target_elem.appendChild (done);
-    debug_out ("cont_done: " + cont_done);
-    debug_out ("done: " + typeof (done.setAttribute));
-    debug_out ("text_done: " + text_done);
+    target_elem.appendChild (act);
 }
 
 function click_done (cont, target_elem) {
