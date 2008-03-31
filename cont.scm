@@ -39,7 +39,7 @@
 (define show-task
   (cont-lambda (index)
     (list
-     (list 'contnet (task-content index))
+     (list 'content (task-content index))
 
      ;; edit
      ((cont-lambda (index newcontent)
