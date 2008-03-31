@@ -33,8 +33,8 @@
 (define proccess-task
   (cont-lambda (cmd index)
     (case cmd
-      ((edit) (task-edit index newcontent))
-      ((cancel) (task-cancel index)))))
+      ((edit) (task-edit! index newcontent))
+      ((cancel) (task-cancel! index)))))
 
 (define show-task
   (cont-lambda (index)
@@ -43,14 +43,14 @@
 
      ;; edit
      ((cont-lambda (index newcontent)
-	(task-edit index newcontent))
+	(task-edit! index newcontent))
       index "?")
 
      ;; cancel
-     ((cont-lambda (index) (task-cancel index)) index)
+     ((cont-lambda (index) (task-cancel! index)) index)
 
      ;; cancel
-     ((cont-lambda (index) (task-done index)) index)
+     ((cont-lambda (index) (task-done! index)) index)
 
      )
     ))
@@ -75,18 +75,21 @@
 (define (task-content index)
   (cadr (get-task index)))
 
-(define (task-edit index newcontent)
+(define (task-edit! index newcontent)
   (set-car! (cdr (get-task index)) newcontent)
   '((ok)))
 
-(define (task-cancel index)
+(define (task-cancel! index)
   (set-car! (get-task index) 'canceled)
   '((ok)))
 
-(define (task-done index)
+(define (task-done! index)
   (set-car! (get-task index) 'done)
   '((ok)))
 
+(define (task-create! content)
+  (append! *tasks* `((todo ,content)))
+  '((ok)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; main
@@ -107,9 +110,14 @@
 	     ,(html:html
 	       (html:head (html:title "Task list"))
 	       (html:body
+		(html:form
+		 :id "create-form"
+		 (html:input :type "text" :id "create-content"))
 		(html:div :id "main")
-		(html:div :id "cont"
+		(html:div :id "cont-list"
 			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
+		(html:div :id "cont-create"
+			  (tree->string (cdr ((cont-lambda (x) (task-create! x)) "?"))))
 		(html:pre :id "debug")
 		(html:script :src "./script.js")
 		)

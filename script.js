@@ -17,16 +17,28 @@ function gen_xmlhttp () {
 
 var xmlhttp = gen_xmlhttp ();
 
-var cont = document.getElementById("cont").innerText;
+var cont_tasklist = document.getElementById("cont-list").innerText;
+var cont_create = document.getElementById("cont-create").innerText;
 
 function debug_out (txt) {
     var elem = document.getElementById("debug");
     elem.innerText += "\n" + txt;
 }
 
-debug_out (cont);
+// debug_out (cont_tasklist);
+// debug_out (cont_create);
 
-xmlhttp.open("GET", "./index.cgi?p=" + cont, "True");
+var form = document.getElementById ("create-form");
+form.onsubmit = function () {
+    var text = document.getElementById("create-content").value;
+    if (text.length > 0) {
+	document.getElementById("create-content").value = "";
+	create_submit (text, cont_create);
+    }
+    return false;
+};
+
+xmlhttp.open("GET", "./index.cgi?p=" + cont_tasklist, "True");
 xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 // 	var disp = document.getElementById("debug");
@@ -56,6 +68,28 @@ xmlhttp.onreadystatechange = function() {
     }
 };
 xmlhttp.send(null);
+
+function call_cont (cont, callback) {
+    xmlhttp.open("GET", "./index.cgi?p=" + cont, "True");
+    xmlhttp.onreadystatechange = function() {
+	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	    callback (xmlhttp.responseXML);
+	}
+    };
+    xmlhttp.send(null);
+}
+
+function create_submit (text, cont) {
+    var req = cont.replace ("?", text);
+
+    debug_out ("submit: " + req);
+
+    call_cont (req,
+	       function (res) {
+		   debug_out ("Submitted: "
+			      + res.documentElement);
+	       });
+}
 
 function gen_task (cont, target_elem) {
     var xmlhttp = gen_xmlhttp ();
