@@ -125,11 +125,21 @@ function make_action (act, disp, cont, func, target_elem) {
 }
 
 function click_done (cont, target_elem) {
-    debug_out ("DONE! " + [cont, target_elem]);
+    call_cont (cont,
+	       function (res) {
+		   debug_out ("Done: "
+			      + res.documentElement);
+		   debug_out ("DONE! " + [cont, target_elem]);
+	       });
 }
 
 function click_cancel (cont, target_elem) {
-    debug_out ("CANCEL! " + [cont, target_elem]);
+    call_cont (cont,
+	       function (res) {
+		   debug_out ("Canceled: "
+			      + res.documentElement);
+		   debug_out ("CANCEL! " + [cont, target_elem]);
+	       });
 }
 
 function filter_element_nodes (nodes) {
