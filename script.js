@@ -75,9 +75,11 @@ function gen_task (cont, target_elem) {
 	    var text = document.createTextNode (elems[0].firstChild.nodeValue);
 	    target_elem.appendChild (text);
 
+
+	    // cancel
 	    var text_cancel = document.createTextNode ("cancel");
 	    var cancel = document.createElement ("a");
-	    var cont_cancel = elems[1].firstChild.nodeValue;
+	    var cont_cancel = elems[2].firstChild.nodeValue;
 	    cancel.setAttribute ("href",
 				 "javascript:(function () {click_cancel("
 				 + cont_cancel + ")})()");
@@ -88,6 +90,22 @@ function gen_task (cont, target_elem) {
 	    debug_out ("cont_cancel: " + cont_cancel);
 	    debug_out ("cancel: " + typeof (cancel.setAttribute));
 	    debug_out ("text_cancel: " + text_cancel);
+
+
+	    // done
+	    var text_done = document.createTextNode ("done");
+	    var done = document.createElement ("a");
+	    var cont_done = elems[3].firstChild.nodeValue;
+	    done.setAttribute ("href",
+				 "javascript:(function () {click_done("
+				 + cont_done + ")})()");
+	    done.setAttribute ("class", "done");
+	    done.appendChild (text_done);
+	    
+	    target_elem.appendChild (done);
+	    debug_out ("cont_done: " + cont_done);
+	    debug_out ("done: " + typeof (done.setAttribute));
+	    debug_out ("text_done: " + text_done);
 	}
     }
     xmlhttp.send (null);

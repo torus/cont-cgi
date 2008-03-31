@@ -49,6 +49,9 @@
      ;; cancel
      ((cont-lambda (index) (task-cancel index)) index)
 
+     ;; cancel
+     ((cont-lambda (index) (task-done index)) index)
+
      )
     ))
 
@@ -64,7 +67,7 @@
 		  (cons (show-task k) filterd)
 		  filterd)))))
 
-(define *tasks* '((todo "task1") (canceled "task2") (todo "task3")
+(define *tasks* '((todo "ほげ") (done "task2") (todo "task3")
 		  (todo "task4") (canceled "task5") (todo "task6")))
 
 (define (get-task index) (list-ref *tasks* index))
@@ -78,6 +81,10 @@
 
 (define (task-cancel index)
   (set-car! (get-task index) 'canceled)
+  '((ok)))
+
+(define (task-done index)
+  (set-car! (get-task index) 'done)
   '((ok)))
 
 
