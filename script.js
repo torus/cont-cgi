@@ -17,12 +17,14 @@ function gen_xmlhttp () {
 
 var xmlhttp = gen_xmlhttp ();
 
-var cont_tasklist = document.getElementById("cont-list").innerText;
-var cont_create = document.getElementById("cont-create").innerText;
+var cont_tasklist = document.getElementById("cont-list").firstChild.nodeValue;
+var cont_create = document.getElementById("cont-create").firstChild.nodeValue;
 
 function debug_out (txt) {
     var elem = document.getElementById("debug");
-    elem.innerText += "\n" + txt;
+    var textelem = document.createTextNode("\n" + txt);
+
+    elem.appendChild(textelem);
 }
 
 // debug_out (cont_tasklist);
