@@ -67,8 +67,16 @@
 		  (cons (show-task k) filterd)
 		  filterd)))))
 
-(define *tasks* '((todo "ほげ") (done "task2") (todo "task3")
-		  (todo "task4") (canceled "task5") (todo "task6")))
+;; (define *tasks* '((todo "ほげ") (done "task2") (todo "task3")
+;; 		  (todo "task4") (canceled "task5") (todo "task6")))
+
+(define *file* "task.data")
+(define *tasks*
+  (guard (e (else ()))
+	 (with-input-from-file *file* read)))
+
+(define (write-data)
+  (with-output-to-file *file* (cut write *tasks*)))
 
 (define (get-task index) (list-ref *tasks* index))
 
@@ -77,18 +85,22 @@
 
 (define (task-edit! index newcontent)
   (set-car! (cdr (get-task index)) newcontent)
+  (write-data)
   '((ok)))
 
 (define (task-cancel! index)
   (set-car! (get-task index) 'canceled)
+  (write-data)
   '((ok)))
 
 (define (task-done! index)
   (set-car! (get-task index) 'done)
+  (write-data)
   '((ok)))
 
 (define (task-create! content)
-  (append! *tasks* `((todo ,content)))
+  (set! *tasks* (cons `(todo ,content) *tasks*))
+  (write-data)
   '((ok)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
