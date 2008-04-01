@@ -1,3 +1,18 @@
+var cont_tasklist = document.getElementById("cont-list").firstChild.nodeValue;
+var cont_create = document.getElementById("cont-create").firstChild.nodeValue;
+
+var form = document.getElementById ("create-form");
+form.onsubmit = function () {
+    var text = document.getElementById("create-content").value;
+    if (text.length > 0) {
+	document.getElementById("create-content").value = "";
+	create_submit (text, cont_create);
+    }
+    return false;
+};
+
+call_cont (cont_tasklist, show_tasklist);
+
 function gen_xmlhttp () {
     var xmlhttp = false;
     if(typeof ActiveXObject != "undefined"){
@@ -14,33 +29,12 @@ function gen_xmlhttp () {
     return xmlhttp;
 }
 
-var xmlhttp = gen_xmlhttp ();
-
-var cont_tasklist = document.getElementById("cont-list").firstChild.nodeValue;
-var cont_create = document.getElementById("cont-create").firstChild.nodeValue;
-
 function debug_out (txt) {
     var elem = document.getElementById("debug");
     var textelem = document.createTextNode("\n" + txt);
 
     elem.appendChild(textelem);
 }
-
-// debug_out (cont_tasklist);
-// debug_out (cont_create);
-
-var form = document.getElementById ("create-form");
-form.onsubmit = function () {
-    var text = document.getElementById("create-content").value;
-    if (text.length > 0) {
-	document.getElementById("create-content").value = "";
-	create_submit (text, cont_create);
-    }
-    return false;
-};
-
-
-call_cont (cont_tasklist, show_tasklist);
 
 function show_tasklist (res) {
     var nodes = res.documentElement.childNodes;
@@ -66,6 +60,8 @@ function show_tasklist (res) {
 }
 
 function call_cont (cont, callback) {
+    var xmlhttp = gen_xmlhttp ();
+
     xmlhttp.open("GET", "./index.cgi?p=" + cont, "True");
     xmlhttp.onreadystatechange = function() {
 	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -88,25 +84,19 @@ function create_submit (text, cont) {
 }
 
 function gen_task (cont, target_elem) {
-    var xmlhttp = gen_xmlhttp ();
+    call_cont (cont,
+	       function (dom) {
+		   var nodes = dom.documentElement.childNodes;
+		   var elems = filter_element_nodes (nodes);
+		   var text = document.createTextNode (elems[0].firstChild.nodeValue);
 
-    xmlhttp.open ("GET", "./index.cgi?p=" + cont);
-    xmlhttp.onreadystatechange = function () {
-	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-	    var dom = xmlhttp.responseXML;
-	    var nodes = dom.documentElement.childNodes;
-	    var elems = filter_element_nodes (nodes);
-	    var text = document.createTextNode (elems[0].firstChild.nodeValue);
+		   target_elem.appendChild (text);
 
-	    target_elem.appendChild (text);
-
-	    make_action ("cancel", "[cancel]",
-			 elems[2].firstChild.nodeValue, click_cancel, target_elem);
-	    make_action ("done", "[done]",
-			 elems[3].firstChild.nodeValue, click_done, target_elem);
-	}
-    }
-    xmlhttp.send (null);
+		   make_action ("cancel", "[cancel]",
+				elems[2].firstChild.nodeValue, click_cancel, target_elem);
+		   make_action ("done", "[done]",
+				elems[3].firstChild.nodeValue, click_done, target_elem);
+	       });
 }
 
 function make_action (act, disp, cont, func, target_elem) {
