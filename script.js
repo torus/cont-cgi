@@ -1,5 +1,4 @@
 function gen_xmlhttp () {
-
     var xmlhttp = false;
     if(typeof ActiveXObject != "undefined"){
 	try {
@@ -41,32 +40,29 @@ form.onsubmit = function () {
 };
 
 
-show_tasklist (cont_tasklist);
+call_cont (cont_tasklist, show_tasklist);
 
-function show_tasklist (req) {
-    call_cont (req,
-	       function (res) {
-		   var nodes = res.documentElement.childNodes;
+function show_tasklist (res) {
+    var nodes = res.documentElement.childNodes;
 
-		   var dest = document.getElementById ("main");
-		   debug_out ("dest: " + dest);
-		   var ul = document.createElement ("ul");
-		   dest.appendChild (ul);
+    var dest = document.getElementById ("main");
+    debug_out ("dest: " + dest);
+    var ul = document.createElement ("ul");
+    dest.appendChild (ul);
 
-		   if (nodes.length > 0) {
-		       debug_out (nodes.length);
-		       for (var i = 0; i < nodes.length; i ++) {
-			   if (nodes[i].nodeType != 1) continue;
-			   var cont = nodes[i].firstChild.nodeValue;
-			   debug_out (i + ": " + cont);
+    if (nodes.length > 0) {
+	debug_out (nodes.length);
+	for (var i = 0; i < nodes.length; i ++) {
+	    if (nodes[i].nodeType != 1) continue;
+	    var cont = nodes[i].firstChild.nodeValue;
+	    debug_out (i + ": " + cont);
 
-			   var li = document.createElement ("li");
-			   ul.appendChild (li);
+	    var li = document.createElement ("li");
+	    ul.appendChild (li);
 
-			   gen_task (cont, li);
-		       }
-		   }
-	       });
+	    gen_task (cont, li);
+	}
+    }
 }
 
 function call_cont (cont, callback) {
