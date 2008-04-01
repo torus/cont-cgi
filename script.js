@@ -88,14 +88,33 @@ function gen_task (cont, target_elem) {
 	       function (dom) {
 		   var nodes = dom.documentElement.childNodes;
 		   var elems = filter_element_nodes (nodes);
-		   var text = document.createTextNode (elems[0].firstChild.nodeValue);
+		   var content = elems[0].firstChild.nodeValue;
+		   var text = document.createTextNode (content);
 
-		   target_elem.appendChild (text);
+		   var form = document.createElement ("form");
+		   form.appendChild (text);
 
 		   make_action ("cancel", "[cancel]",
-				elems[2].firstChild.nodeValue, click_cancel, target_elem);
+				elems[2].firstChild.nodeValue, click_cancel, form);
 		   make_action ("done", "[done]",
-				elems[3].firstChild.nodeValue, click_done, target_elem);
+				elems[3].firstChild.nodeValue, click_done, form);
+
+		   var input = document.createElement ("input");
+		   input.setAttribute ("type", "text");
+		   input.setAttribute ("value", content);
+		   form.onsubmit = function () {
+		       debug_out ("Edit -> " + input.value);
+
+		       var edit_cont = elems[1].firstChild.nodeValue;
+		       edit_cont = edit_cont.replace ("?", input.value);
+		       call_cont (edit_cont, function (dom) {
+				      debug_out ("Edit: OK!");
+				  });
+
+		       return false;
+		   };
+		   form.appendChild (input);
+		   target_elem.appendChild (form);
 	       });
 }
 
@@ -111,20 +130,20 @@ function make_action (act, disp, cont, func, target_elem) {
 }
 
 function click_done (cont, target_elem) {
+    debug_out ("DONE! " + [cont, target_elem]);
     call_cont (cont,
 	       function (res) {
 		   debug_out ("Done: "
 			      + res.documentElement);
-		   debug_out ("DONE! " + [cont, target_elem]);
 	       });
 }
 
 function click_cancel (cont, target_elem) {
+    debug_out ("CANCEL! " + [cont, target_elem]);
     call_cont (cont,
 	       function (res) {
 		   debug_out ("Canceled: "
 			      + res.documentElement);
-		   debug_out ("CANCEL! " + [cont, target_elem]);
 	       });
 }
 
