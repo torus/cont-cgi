@@ -40,36 +40,34 @@ form.onsubmit = function () {
     return false;
 };
 
-xmlhttp.open("GET", "./index.cgi?p=" + cont_tasklist, "True");
-xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-// 	var disp = document.getElementById("debug");
-// 	disp.innerHTML = xmlhttp.responseText;
 
-	var dom = xmlhttp.responseXML;
-	var nodes = dom.documentElement.childNodes;
+show_tasklist (cont_tasklist);
 
-	var dest = document.getElementById ("main");
-	debug_out ("dest: " + dest);
-	var ul = document.createElement ("ul");
-	dest.appendChild (ul);
+function show_tasklist (req) {
+    call_cont (req,
+	       function (res) {
+		   var nodes = res.documentElement.childNodes;
 
-	if (nodes.length > 0) {
-	    debug_out (nodes.length);
-	    for (var i = 0; i < nodes.length; i ++) {
-		if (nodes[i].nodeType != 1) continue;
-		var cont = nodes[i].firstChild.nodeValue;
-		debug_out (i + ": " + cont);
+		   var dest = document.getElementById ("main");
+		   debug_out ("dest: " + dest);
+		   var ul = document.createElement ("ul");
+		   dest.appendChild (ul);
 
-		var li = document.createElement ("li");
-		ul.appendChild (li);
+		   if (nodes.length > 0) {
+		       debug_out (nodes.length);
+		       for (var i = 0; i < nodes.length; i ++) {
+			   if (nodes[i].nodeType != 1) continue;
+			   var cont = nodes[i].firstChild.nodeValue;
+			   debug_out (i + ": " + cont);
 
-		gen_task (cont, li);
-	    }
-	}
-    }
-};
-xmlhttp.send(null);
+			   var li = document.createElement ("li");
+			   ul.appendChild (li);
+
+			   gen_task (cont, li);
+		       }
+		   }
+	       });
+}
 
 function call_cont (cont, callback) {
     xmlhttp.open("GET", "./index.cgi?p=" + cont, "True");
