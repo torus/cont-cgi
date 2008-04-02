@@ -40,7 +40,7 @@ function debug_out (txt) {
 
 function make_tasklist_func (label, task_func) {
     var dest = document.getElementById ("main");
-    debug_out ("dest: " + dest);
+//     debug_out ("dest: " + dest);
     var todo_h2 = document.createElement ("h2");
     var todo_label = document.createTextNode (label);
     todo_h2.appendChild (todo_label);
@@ -52,11 +52,11 @@ function make_tasklist_func (label, task_func) {
 	var nodes = res.documentElement.childNodes;
 
 	if (nodes.length > 0) {
-	    debug_out (nodes.length);
+// 	    debug_out (nodes.length);
 	    for (var i = 0; i < nodes.length; i ++) {
 		if (nodes[i].nodeType != 1) continue;
 		var cont = nodes[i].firstChild.nodeValue;
-		debug_out (i + ": " + cont);
+// 		debug_out (i + ": " + cont);
 
 		var li = document.createElement ("li");
 		ul.appendChild (li);
@@ -80,13 +80,17 @@ function call_cont (cont, callback) {
 }
 
 function create_submit (text, cont) {
-    var req = cont.replace ("?", text);
+    // FIXME: surrogate pair is not applicable
+    var enc = escape(text).replace (/%u/g, "\\u").replace (/%/g, "\\x");
+    debug_out (enc);
+
+    var req = cont.replace ("?", enc);
 
     debug_out ("submit: " + req);
 
     call_cont (req,
 	       function (res) {
-		   debug_out ("Submitted: "
+		   debug_out ("Created: "
 			      + res.documentElement);
 	       });
 }
