@@ -82,7 +82,7 @@ function call_cont (cont, callback) {
 function create_submit (text, cont) {
     // FIXME: surrogate pair is not applicable
     var enc = escape(text).replace (/%u/g, "\\u").replace (/%/g, "\\x");
-    debug_out (enc);
+//     debug_out (enc);
 
     var req = cont.replace ("?", enc);
 
@@ -117,10 +117,8 @@ function gen_task (cont, target_elem) {
 	    debug_out ("Edit -> " + input.value);
 
 	    var edit_cont = elems[1].firstChild.nodeValue;
-	    edit_cont = edit_cont.replace ("?", input.value);
-	    call_cont (edit_cont, function (dom) {
-			   debug_out ("Edit: OK!");
-		       });
+
+	    create_submit (input.value, edit_cont);
 
 	    return false;
 	};
