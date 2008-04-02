@@ -84,38 +84,39 @@ function create_submit (text, cont) {
 }
 
 function gen_task (cont, target_elem) {
-    call_cont (cont,
-	       function (dom) {
-		   var nodes = dom.documentElement.childNodes;
-		   var elems = filter_element_nodes (nodes);
-		   var content = elems[0].firstChild.nodeValue;
-		   var text = document.createTextNode (content);
+    var func = function (dom) {
+	var nodes = dom.documentElement.childNodes;
+	var elems = filter_element_nodes (nodes);
+	var content = elems[0].firstChild.nodeValue;
+	var text = document.createTextNode (content);
 
-		   var form = document.createElement ("form");
-		   form.appendChild (text);
+	var form = document.createElement ("form");
+	form.appendChild (text);
 
-		   make_action ("cancel", "[cancel]",
-				elems[2].firstChild.nodeValue, click_cancel, form);
-		   make_action ("done", "[done]",
-				elems[3].firstChild.nodeValue, click_done, form);
+	make_action ("cancel", "[cancel]",
+		     elems[2].firstChild.nodeValue, click_cancel, form);
+	make_action ("done", "[done]",
+		     elems[3].firstChild.nodeValue, click_done, form);
 
-		   var input = document.createElement ("input");
-		   input.setAttribute ("type", "text");
-		   input.setAttribute ("value", content);
-		   form.onsubmit = function () {
-		       debug_out ("Edit -> " + input.value);
+	var input = document.createElement ("input");
+	input.setAttribute ("type", "text");
+	input.setAttribute ("value", content);
+	form.onsubmit = function () {
+	    debug_out ("Edit -> " + input.value);
 
-		       var edit_cont = elems[1].firstChild.nodeValue;
-		       edit_cont = edit_cont.replace ("?", input.value);
-		       call_cont (edit_cont, function (dom) {
-				      debug_out ("Edit: OK!");
-				  });
+	    var edit_cont = elems[1].firstChild.nodeValue;
+	    edit_cont = edit_cont.replace ("?", input.value);
+	    call_cont (edit_cont, function (dom) {
+			   debug_out ("Edit: OK!");
+		       });
 
-		       return false;
-		   };
-		   form.appendChild (input);
-		   target_elem.appendChild (form);
-	       });
+	    return false;
+	};
+	form.appendChild (input);
+	target_elem.appendChild (form);
+    };
+
+    call_cont (cont, func);
 }
 
 function make_action (act, disp, cont, func, target_elem) {
