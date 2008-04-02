@@ -1,4 +1,5 @@
 var cont_tasklist = document.getElementById("cont-list").firstChild.nodeValue;
+var cont_donelist = document.getElementById("cont-list-done").firstChild.nodeValue;
 var cont_create = document.getElementById("cont-create").firstChild.nodeValue;
 
 var form = document.getElementById ("create-form");
@@ -11,7 +12,8 @@ form.onsubmit = function () {
     return false;
 };
 
-call_cont (cont_tasklist, show_tasklist);
+call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task));
+call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done));
 
 function gen_xmlhttp () {
     var xmlhttp = false;
@@ -36,25 +38,31 @@ function debug_out (txt) {
     elem.appendChild(textelem);
 }
 
-function show_tasklist (res) {
-    var nodes = res.documentElement.childNodes;
-
+function make_tasklist_func (label, task_func) {
     var dest = document.getElementById ("main");
     debug_out ("dest: " + dest);
+    var todo_h2 = document.createElement ("h2");
+    var todo_label = document.createTextNode (label);
+    todo_h2.appendChild (todo_label);
+    dest.appendChild (todo_h2);
     var ul = document.createElement ("ul");
     dest.appendChild (ul);
 
-    if (nodes.length > 0) {
-	debug_out (nodes.length);
-	for (var i = 0; i < nodes.length; i ++) {
-	    if (nodes[i].nodeType != 1) continue;
-	    var cont = nodes[i].firstChild.nodeValue;
-	    debug_out (i + ": " + cont);
+    return function (res) {
+	var nodes = res.documentElement.childNodes;
 
-	    var li = document.createElement ("li");
-	    ul.appendChild (li);
+	if (nodes.length > 0) {
+	    debug_out (nodes.length);
+	    for (var i = 0; i < nodes.length; i ++) {
+		if (nodes[i].nodeType != 1) continue;
+		var cont = nodes[i].firstChild.nodeValue;
+		debug_out (i + ": " + cont);
 
-	    gen_task (cont, li);
+		var li = document.createElement ("li");
+		ul.appendChild (li);
+
+		task_func (cont, li);
+	    }
 	}
     }
 }
@@ -114,6 +122,19 @@ function gen_task (cont, target_elem) {
 	};
 	form.appendChild (input);
 	target_elem.appendChild (form);
+    };
+
+    call_cont (cont, func);
+}
+
+function gen_task_done (cont, target_elem) {
+    var func = function (dom) {
+	var nodes = dom.documentElement.childNodes;
+	var elems = filter_element_nodes (nodes);
+	var content = elems[0].firstChild.nodeValue;
+	var text = document.createTextNode (content);
+
+	target_elem.appendChild (text);
     };
 
     call_cont (cont, func);

@@ -67,9 +67,6 @@
 		  (cons (show-task k) filterd)
 		  filterd)))))
 
-;; (define *tasks* '((todo "ほげ") (done "task2") (todo "task3")
-;; 		  (todo "task4") (canceled "task5") (todo "task6")))
-
 (define *file* "task.data")
 (define *tasks*
   (guard (e (else ()))
@@ -128,6 +125,8 @@
 		(html:div :id "main")
 		(html:div :id "cont-list"
 			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
+		(html:div :id "cont-list-done"
+			  (tree->string (cdr ((cont-lambda () (task-list 'done))))))
 		(html:div :id "cont-create"
 			  (tree->string (cdr ((cont-lambda (x) (task-create! x)) "?"))))
 		(html:pre :id "debug")
