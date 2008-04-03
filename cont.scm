@@ -98,7 +98,7 @@
 (define (task-create! content)
   (set! *tasks* (cons `(todo ,content) *tasks*))
   (write-data)
-  '((ok)))
+  `(,(show-task 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; main

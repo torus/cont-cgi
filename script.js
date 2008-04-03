@@ -12,8 +12,22 @@ form.onsubmit = function () {
     return false;
 };
 
-call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task));
-call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done));
+var ul_elem_todo;
+var ul_elem_done;
+
+call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task, set_todo_elem));
+call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done, set_done_elem));
+
+function set_todo_elem (elem) {
+    ul_elem_todo = elem;
+}
+
+function set_done_elem (elem) {
+    ul_elem_done = elem;
+}
+
+function get_todo_elem () {return ul_elem_todo;}
+function get_done_elem () {return ul_elem_done;}
 
 function gen_xmlhttp () {
     var xmlhttp = false;
@@ -38,7 +52,7 @@ function debug_out (txt) {
     elem.appendChild(textelem);
 }
 
-function make_tasklist_func (label, task_func) {
+function make_tasklist_func (label, task_func, elem_setter) {
     var dest = document.getElementById ("main");
 //     debug_out ("dest: " + dest);
     var todo_h2 = document.createElement ("h2");
@@ -47,6 +61,8 @@ function make_tasklist_func (label, task_func) {
     dest.appendChild (todo_h2);
     var ul = document.createElement ("ul");
     dest.appendChild (ul);
+
+    elem_setter (ul);
 
     return function (res) {
 	var nodes = res.documentElement.childNodes;
@@ -88,11 +104,20 @@ function create_submit (text, cont) {
 
     debug_out ("submit: " + req);
 
-    call_cont (req,
-	       function (res) {
-		   debug_out ("Created: "
-			      + res.documentElement);
-	       });
+    var func = function (res) {
+	debug_out ("Created: " + res.documentElement);
+	var nodes = res.documentElement.childNodes;
+	var elems = filter_element_nodes (nodes);
+	var cont = elems[0].firstChild.nodeValue;
+
+	var li = document.createElement ("li");
+	var ul = get_todo_elem ();
+	ul.insertBefore (li, ul.firstChild);
+
+	gen_task (cont, li);
+    };
+
+    call_cont (req, func);
 }
 
 function gen_task (cont, target_elem) {
@@ -106,9 +131,11 @@ function gen_task (cont, target_elem) {
 	form.appendChild (text);
 
 	make_action ("cancel", "[cancel]",
-		     elems[2].firstChild.nodeValue, click_cancel (target_elem), form);
+		     elems[2].firstChild.nodeValue,
+		     click_cancel (target_elem, content), form);
 	make_action ("done", "[done]",
-		     elems[3].firstChild.nodeValue, click_done (target_elem), form);
+		     elems[3].firstChild.nodeValue,
+		     click_done (target_elem, content), form);
 
 	var input = document.createElement ("input");
 	input.setAttribute ("type", "text");
@@ -129,6 +156,28 @@ function gen_task (cont, target_elem) {
     call_cont (cont, func);
 }
 
+function append_to_done_list (content) {
+    var li = document.createElement ("li");
+    var text = document.createTextNode (content);
+
+    li.appendChild (text);
+    ul = get_done_elem ();
+
+    ul.insertBefore (li, ul.firstChild);
+}
+
+function append_to_cancel_list (content) {
+    var li = document.createElement ("li");
+    var del = document.createElement ("del");
+    var text = document.createTextNode (content);
+
+    del.appendChild (text);
+    li.appendChild (del);
+    ul = get_done_elem ();
+
+    ul.insertBefore (li, ul.firstChild);
+}
+
 function gen_task_done (cont, target_elem) {
     var func = function (dom) {
 	var nodes = dom.documentElement.childNodes;
@@ -146,6 +195,7 @@ function make_action (act, disp, cont, func, target_elem) {
     var text_act = document.createTextNode (disp);
     var act = document.createElement ("span");
     var cont_act = cont;
+
     act.onclick = function () {func (cont_act, target_elem)};
     act.setAttribute ("class", act);
     act.appendChild (text_act);
@@ -153,25 +203,42 @@ function make_action (act, disp, cont, func, target_elem) {
     target_elem.appendChild (act);
 }
 
-function click_done (elem) {
+function click_done (elem, content) {
+    var func = function (res) {
+	var par = elem.parentNode;
+	par.removeChild (elem);
+// 	get_done_elem ().appendChild (elem);
+
+// 	var ul = get_done_elem ();
+// 	ul.insertBefore (elem, ul.firstChild);
+	append_to_done_list (content);
+
+	debug_out ("Done: "
+		   + res.documentElement);
+    };
+
     return function (cont, target_elem) {
 	debug_out ("DONE! " + [cont, target_elem]);
-	call_cont (cont,
-		   function (res) {
-		       debug_out ("Done: "
-				  + res.documentElement);
-		   });
+	call_cont (cont, func);
     };
 }
 
-function click_cancel (elem) {
+function click_cancel (elem, content) {
+    var func = function (res) {
+	var par = elem.parentNode;
+	par.removeChild (elem);
+// 	get_done_elem ().appendChild (elem);
+
+	append_to_cancel_list (content);
+// 	var ul = get_done_elem ();
+// 	ul.insertBefore (elem, ul.firstChild);
+
+	debug_out ("Canceled: " + [res.documentElement, elem]);
+    };
+
     return function (cont, target_elem) {
 	debug_out ("CANCEL! " + [cont, target_elem]);
-	call_cont (cont,
-		   function (res) {
-		       debug_out ("Canceled: "
-				  + res.documentElement);
-		   });
+	call_cont (cont, func);
     };
 }
 
