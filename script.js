@@ -125,18 +125,22 @@ function gen_task (cont, target_elem) {
 	var nodes = dom.documentElement.childNodes;
 	var elems = filter_element_nodes (nodes);
 	var content = elems[0].firstChild.nodeValue;
+	var text_span = document.createElement ("span");
 	var text = document.createTextNode (content);
 
+	text_span.appendChild (text);
+	target_elem.appendChild (text_span);
+
 	var form = document.createElement ("form");
-	form.appendChild (text);
+	form.style.display = "none";
 
-	make_action ("cancel", "[cancel]",
-		     elems[2].firstChild.nodeValue,
-		     click_cancel (target_elem, content), form);
-	make_action ("done", "[done]",
-		     elems[3].firstChild.nodeValue,
-		     click_done (target_elem, content), form);
+	///////////
+	text_span.onclick = function () {
+	    form.style.display = "inline";
+	    text_span.style.display = "none";
+	};
 
+	////////////
 	var input = document.createElement ("input");
 	input.setAttribute ("type", "text");
 	input.setAttribute ("value", content);
@@ -145,12 +149,21 @@ function gen_task (cont, target_elem) {
 
 	    var edit_cont = elems[1].firstChild.nodeValue;
 
-	    create_submit (input.value, edit_cont);
+// 	    create_submit (input.value, edit_cont, form, text_span);
 
 	    return false;
 	};
 	form.appendChild (input);
 	target_elem.appendChild (form);
+
+	///////
+	make_action ("cancel", "[cancel]",
+		     elems[2].firstChild.nodeValue,
+		     click_cancel (target_elem, content), target_elem);
+	make_action ("done", "[done]",
+		     elems[3].firstChild.nodeValue,
+		     click_done (target_elem, content), target_elem);
+
     };
 
     call_cont (cont, func);
