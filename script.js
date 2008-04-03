@@ -120,6 +120,36 @@ function create_submit (text, cont) {
     call_cont (req, func);
 }
 
+function edit_submit (text, cont, input_elem, text_span_elem) {
+    // FIXME: surrogate pair is not applicable
+    var enc = escape(text).replace (/%u/g, "\\u").replace (/%/g, "\\x");
+//     debug_out (enc);
+
+    var req = cont.replace ("?", enc);
+
+    debug_out ("submit: " + req);
+
+    var func = function (res) {
+	debug_out ("Edited: " + res.documentElement);
+
+	text_span_elem.firstChild.nodeValue = text;
+
+	input_elem.onblur ();
+
+// 	var nodes = res.documentElement.childNodes;
+// 	var elems = filter_element_nodes (nodes);
+// 	var cont = elems[0].firstChild.nodeValue;
+
+// 	var li = document.createElement ("li");
+// 	var ul = get_todo_elem ();
+// 	ul.insertBefore (li, ul.firstChild);
+
+// 	gen_task (cont, li);
+    };
+
+    call_cont (req, func);
+}
+
 function gen_task (cont, target_elem) {
     var func = function (dom) {
 	var nodes = dom.documentElement.childNodes;
@@ -134,12 +164,6 @@ function gen_task (cont, target_elem) {
 	var form = document.createElement ("form");
 	form.style.display = "none";
 
-	///////////
-	text_span.onclick = function () {
-	    form.style.display = "inline";
-	    text_span.style.display = "none";
-	};
-
 	////////////
 	var input = document.createElement ("input");
 	input.setAttribute ("type", "text");
@@ -149,10 +173,25 @@ function gen_task (cont, target_elem) {
 
 	    var edit_cont = elems[1].firstChild.nodeValue;
 
-// 	    create_submit (input.value, edit_cont, form, text_span);
+	    edit_submit (input.value, edit_cont, input, text_span);
 
 	    return false;
 	};
+
+	///////////
+	text_span.onclick = function () {
+	    form.style.display = "inline";
+	    text_span.style.display = "none";
+	    input.focus ();
+	};
+
+	////////
+	input.onblur = function () {
+	    form.style.display = "none";
+	    text_span.style.display = "inline";
+	    debug_out ("blur: " + input);
+	}
+
 	form.appendChild (input);
 	target_elem.appendChild (form);
 
