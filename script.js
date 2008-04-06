@@ -87,7 +87,7 @@ function make_tasklist_func (label, task_func, elem_setter) {
 function call_cont (cont, callback) {
     var xmlhttp = gen_xmlhttp ();
 
-    xmlhttp.open("GET", "./index.cgi?p=" + cont, "True");
+    xmlhttp.open("GET", "./todo.cgi?p=" + cont, "True");
     xmlhttp.onreadystatechange = function() {
 	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 	    callback (xmlhttp.responseXML);
