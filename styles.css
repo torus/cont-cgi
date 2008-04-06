@@ -1,0 +1,17 @@
+div#main { max-width: 80ex;
+           }
+
+div#debug { display: none; }
+
+li { list-style: none;
+     margin: 0.5ex 0px;
+     padding: 1ex 1ex;
+     }
+
+.color-0 { background-color: #ffc; }
+.color-1 { background-color: #fcf; }
+.color-2 { background-color: #fcc; }
+.color-3 { background-color: #cff; }
+.color-4 { background-color: #cfc; }
+
+.invisible { display: none; }

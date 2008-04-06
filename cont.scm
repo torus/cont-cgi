@@ -117,17 +117,21 @@
 	   `(,(cgi-header)
 	     ,(html-doctype)
 	     ,(html:html
-	       (html:head (html:title "Task list"))
+	       (html:head
+		(html:title "Task list")
+		(html:link :rel "stylesheet" :href "styles.css"
+			   :type "text/css" :media "screen"))
 	       (html:body
 		(html:form
 		 :id "create-form"
-		 (html:input :type "text" :id "create-content"))
+		 (html:p "Add new task: "
+			 (html:input :type "text" :id "create-content")))
 		(html:div :id "main")
-		(html:div :id "cont-list"
+		(html:div :id "cont-list" :class "invisible"
 			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
-		(html:div :id "cont-list-done"
+		(html:div :id "cont-list-done" :class "invisible"
 			  (tree->string (cdr ((cont-lambda () (task-list 'done))))))
-		(html:div :id "cont-create"
+		(html:div :id "cont-create" :class "invisible"
 			  (tree->string (cdr ((cont-lambda (x) (task-create! x)) "?"))))
 		(html:pre :id "debug")
 		(html:script :src "./script.js")

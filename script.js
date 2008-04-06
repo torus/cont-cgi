@@ -71,10 +71,11 @@ function make_tasklist_func (label, task_func, elem_setter) {
 // 	    debug_out (nodes.length);
 	    for (var i = 0; i < nodes.length; i ++) {
 		if (nodes[i].nodeType != 1) continue;
+
 		var cont = nodes[i].firstChild.nodeValue;
-// 		debug_out (i + ": " + cont);
 
 		var li = document.createElement ("li");
+		li.className = "color-" + (i % 5);
 		ul.appendChild (li);
 
 		task_func (cont, li);
@@ -156,6 +157,7 @@ function gen_task (cont, target_elem) {
 	var elems = filter_element_nodes (nodes);
 	var content = elems[0].firstChild.nodeValue;
 	var text_span = document.createElement ("span");
+	text_span.className = "task-desc";
 	var text = document.createTextNode (content);
 
 	text_span.appendChild (text);
