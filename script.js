@@ -198,13 +198,13 @@ function gen_task (cont, target_elem) {
 	target_elem.appendChild (form);
 
 	///////
-	make_action ("cancel", "[cancel]",
-		     elems[2].firstChild.nodeValue,
-		     click_cancel (target_elem, content), target_elem);
 	make_action ("done", "[done]",
 		     elems[3].firstChild.nodeValue,
 		     click_done (target_elem, content), target_elem);
 
+	make_action ("cancel", "[cancel]",
+		     elems[2].firstChild.nodeValue,
+		     click_cancel (target_elem, content), target_elem);
     };
 
     call_cont (cont, func);
@@ -245,13 +245,13 @@ function gen_task_done (cont, target_elem) {
     call_cont (cont, func);
 }
 
-function make_action (act, disp, cont, func, target_elem) {
+function make_action (act_name, disp, cont, func, target_elem) {
     var text_act = document.createTextNode (disp);
     var act = document.createElement ("span");
     var cont_act = cont;
 
     act.onclick = function () {func (cont_act, target_elem)};
-    act.setAttribute ("class", act);
+    act.className = act_name;
     act.appendChild (text_act);
 	    
     target_elem.appendChild (act);

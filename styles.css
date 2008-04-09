@@ -15,3 +15,6 @@ li { list-style: none;
 .color-4 { background-color: #cfc; }
 
 .invisible { display: none; }
+
+span.cancel { color: red;
+              float: right; }
