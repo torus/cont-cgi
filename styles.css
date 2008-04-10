@@ -17,4 +17,4 @@ li { list-style: none;
 .invisible { display: none; }
 
 span.cancel { color: red;
-              float: right; }
+              /*float: right;*/ }
