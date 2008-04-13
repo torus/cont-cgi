@@ -1,5 +1,8 @@
 #!/usr/local/bin/gosh
+; -*- scheme -*-
 
+(use srfi-1)
+(use util.list)
 (use www.cgi)
 (use text.html-lite)
 (use text.tree)
@@ -7,7 +10,7 @@
 
 (define *COUNT* 0)
 
-(define *cont-vec* (make-vector 10))
+(define *cont-vec* (make-vector 20))
 
 (define (do-continuation index . args)
   (apply (vector-ref *cont-vec* index) args))
@@ -49,56 +52,72 @@
      ;; cancel
      ((cont-lambda (index) (task-cancel! index)) index)
 
-     ;; cancel
+     ;; done
      ((cont-lambda (index) (task-done! index)) index)
+
+     ;; suspend
+     ((cont-lambda (index) (task-suspend! index)) index)
 
      )
     ))
 
 (define (task-list flag)
-  (let loop ((k 0)
-	     (tasks *tasks*)
+  (let loop ((tasks *tasks*)
 	     (filterd ()))
     (if (null? tasks)
 	(reverse filterd)
-	(loop (+ k 1)
-	      (cdr tasks)
-	      (if (eq? flag (caar tasks))
-		  (cons (show-task k) filterd)
-		  filterd)))))
+	(loop (cdr tasks)
+	      (let1 key (caar tasks)
+		(if (eq? flag (cadar tasks))
+		    (cons (show-task key) filterd)
+		    filterd))))))
+
+;; ((label content) ...)
+
+;; new format:
+;; ((key label content) ...)
 
 (define *file* "task.data")
 (define *tasks*
-  (guard (e (else ()))
+  (guard (e (else '()))
 	 (with-input-from-file *file* read)))
 
 (define (write-data)
   (with-output-to-file *file* (cut write *tasks*)))
 
-(define (get-task index) (list-ref *tasks* index))
+(define (get-task key) (assoc-ref *tasks* key))
 
-(define (task-content index)
-  (cadr (get-task index)))
+(define (task-content key)
+  (cadr (get-task key)))
 
-(define (task-edit! index newcontent)
-  (set-car! (cdr (get-task index)) newcontent)
+(define (task-edit! key newcontent)
+  (set-car! (cdr (get-task key)) newcontent)
   (write-data)
   '((ok)))
 
-(define (task-cancel! index)
-  (set-car! (get-task index) 'canceled)
+(define (task-cancel! key)
+  (set-car! (get-task key) 'canceled)
   (write-data)
   '((ok)))
 
-(define (task-done! index)
-  (set-car! (get-task index) 'done)
+(define (task-done! key)
+  (set-car! (get-task key) 'done)
   (write-data)
   '((ok)))
+
+(define (task-suspend! key)
+  (set-car! (get-task key) 'pending)
+  (write-data)
+  '((ok)))
+
+(define (gen-key)
+  (length+ *tasks*))
 
 (define (task-create! content)
-  (set! *tasks* (cons `(todo ,content) *tasks*))
-  (write-data)
-  `(,(show-task 0)))
+  (let1 key (gen-key)
+    (set! *tasks* (alist-cons key `(todo ,content) *tasks*))
+    (write-data)
+    `(,(show-task key))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; main
@@ -131,6 +150,10 @@
 			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
 		(html:div :id "cont-list-done" :class "invisible"
 			  (tree->string (cdr ((cont-lambda () (task-list 'done))))))
+		(html:div :id "cont-list-canceled" :class "invisible"
+			  (tree->string (cdr ((cont-lambda () (task-list 'canceled))))))
+		(html:div :id "cont-list-pending" :class "invisible"
+			  (tree->string (cdr ((cont-lambda () (task-list 'pending))))))
 		(html:div :id "cont-create" :class "invisible"
 			  (tree->string (cdr ((cont-lambda (x) (task-create! x)) "?"))))
 		(html:pre :id "debug")

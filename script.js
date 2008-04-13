@@ -1,5 +1,7 @@
 var cont_tasklist = document.getElementById("cont-list").firstChild.nodeValue;
 var cont_donelist = document.getElementById("cont-list-done").firstChild.nodeValue;
+var cont_canceledlist = document.getElementById("cont-list-canceled").firstChild.nodeValue;
+var cont_pendinglist = document.getElementById("cont-list-pending").firstChild.nodeValue;
 var cont_create = document.getElementById("cont-create").firstChild.nodeValue;
 
 var form = document.getElementById ("create-form");
@@ -14,9 +16,13 @@ form.onsubmit = function () {
 
 var ul_elem_todo;
 var ul_elem_done;
+var ul_elem_canceled;
+var ul_elem_pending;
 
 call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task, set_todo_elem));
+call_cont (cont_pendinglist, make_tasklist_func ("PENDING", gen_task_done, set_pending_elem));
 call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done, set_done_elem));
+call_cont (cont_canceledlist, make_tasklist_func ("CANCELED", gen_task_done, set_canceled_elem));
 
 function set_todo_elem (elem) {
     ul_elem_todo = elem;
@@ -26,8 +32,17 @@ function set_done_elem (elem) {
     ul_elem_done = elem;
 }
 
+function set_canceled_elem (elem) {
+    ul_elem_canceled = elem;
+}
+
+function set_pending_elem (elem) {
+    ul_elem_pending = elem;
+}
+
 function get_todo_elem () {return ul_elem_todo;}
 function get_done_elem () {return ul_elem_done;}
+function get_pending_elem () {return ul_elem_pending;}
 
 function gen_xmlhttp () {
     var xmlhttp = false;
@@ -202,6 +217,10 @@ function gen_task (cont, target_elem) {
 		     elems[3].firstChild.nodeValue,
 		     click_done (target_elem, content), target_elem);
 
+	make_action ("pending", "[suspend]",
+		     elems[4].firstChild.nodeValue,
+		     click_suspend (target_elem, content), target_elem);
+
 	make_action ("cancel", "[cancel]",
 		     elems[2].firstChild.nodeValue,
 		     click_cancel (target_elem, content), target_elem);
@@ -216,6 +235,16 @@ function append_to_done_list (content) {
 
     li.appendChild (text);
     ul = get_done_elem ();
+
+    ul.insertBefore (li, ul.firstChild);
+}
+
+function append_to_pending_list (content) {
+    var li = document.createElement ("li");
+    var text = document.createTextNode (content);
+
+    li.appendChild (text);
+    ul = get_pending_elem ();
 
     ul.insertBefore (li, ul.firstChild);
 }
@@ -288,6 +317,25 @@ function click_cancel (elem, content) {
 // 	ul.insertBefore (elem, ul.firstChild);
 
 	debug_out ("Canceled: " + [res.documentElement, elem]);
+    };
+
+    return function (cont, target_elem) {
+	debug_out ("CANCEL! " + [cont, target_elem]);
+	call_cont (cont, func);
+    };
+}
+
+function click_suspend (elem, content) {
+    var func = function (res) {
+	var par = elem.parentNode;
+	par.removeChild (elem);
+// 	get_done_elem ().appendChild (elem);
+
+	append_to_pending_list (content);
+// 	var ul = get_done_elem ();
+// 	ul.insertBefore (elem, ul.firstChild);
+
+	debug_out ("Suspended: " + [res.documentElement, elem]);
     };
 
     return function (cont, target_elem) {
