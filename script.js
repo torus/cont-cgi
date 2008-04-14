@@ -43,6 +43,7 @@ function set_pending_elem (elem) {
 function get_todo_elem () {return ul_elem_todo;}
 function get_done_elem () {return ul_elem_done;}
 function get_pending_elem () {return ul_elem_pending;}
+function get_canceled_elem () {return ul_elem_canceled;}
 
 function gen_xmlhttp () {
     var xmlhttp = false;
@@ -147,20 +148,8 @@ function edit_submit (text, cont, input_elem, text_span_elem) {
 
     var func = function (res) {
 	debug_out ("Edited: " + res.documentElement);
-
 	text_span_elem.firstChild.nodeValue = text;
-
 	input_elem.onblur ();
-
-// 	var nodes = res.documentElement.childNodes;
-// 	var elems = filter_element_nodes (nodes);
-// 	var cont = elems[0].firstChild.nodeValue;
-
-// 	var li = document.createElement ("li");
-// 	var ul = get_todo_elem ();
-// 	ul.insertBefore (li, ul.firstChild);
-
-// 	gen_task (cont, li);
     };
 
     call_cont (req, func);
@@ -235,36 +224,13 @@ function gen_task (cont, target_elem) {
     call_cont (cont, func);
 }
 
-function append_to_done_list (content) {
+function append_to_simple_list (content, ul_elem) {
     var li = document.createElement ("li");
     var text = document.createTextNode (content);
 
     li.appendChild (text);
-    ul = get_done_elem ();
 
-    ul.insertBefore (li, ul.firstChild);
-}
-
-function append_to_pending_list (content) {
-    var li = document.createElement ("li");
-    var text = document.createTextNode (content);
-
-    li.appendChild (text);
-    ul = get_pending_elem ();
-
-    ul.insertBefore (li, ul.firstChild);
-}
-
-function append_to_cancel_list (content) {
-    var li = document.createElement ("li");
-    var del = document.createElement ("del");
-    var text = document.createTextNode (content);
-
-    del.appendChild (text);
-    li.appendChild (del);
-    ul = get_done_elem ();
-
-    ul.insertBefore (li, ul.firstChild);
+    ul_elem.insertBefore (li, ul_elem.firstChild);
 }
 
 function gen_task_done (cont, target_elem) {
@@ -296,11 +262,8 @@ function click_done (elem, content) {
     var func = function (res) {
 	var par = elem.parentNode;
 	par.removeChild (elem);
-// 	get_done_elem ().appendChild (elem);
+	append_to_simple_list (content, get_done_elem ());
 
-// 	var ul = get_done_elem ();
-// 	ul.insertBefore (elem, ul.firstChild);
-	append_to_done_list (content);
 
 	debug_out ("Done: "
 		   + res.documentElement);
@@ -316,11 +279,7 @@ function click_cancel (elem, content) {
     var func = function (res) {
 	var par = elem.parentNode;
 	par.removeChild (elem);
-// 	get_done_elem ().appendChild (elem);
-
-	append_to_cancel_list (content);
-// 	var ul = get_done_elem ();
-// 	ul.insertBefore (elem, ul.firstChild);
+	append_to_simple_list (content, get_canceled_elem ());
 
 	debug_out ("Canceled: " + [res.documentElement, elem]);
     };
@@ -335,11 +294,7 @@ function click_suspend (elem, content) {
     var func = function (res) {
 	var par = elem.parentNode;
 	par.removeChild (elem);
-// 	get_done_elem ().appendChild (elem);
-
-	append_to_pending_list (content);
-// 	var ul = get_done_elem ();
-// 	ul.insertBefore (elem, ul.firstChild);
+	append_to_simple_list (content, get_pending_elem ());
 
 	debug_out ("Suspended: " + [res.documentElement, elem]);
     };
