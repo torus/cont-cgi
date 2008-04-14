@@ -155,7 +155,14 @@ function edit_submit (text, cont, input_elem, text_span_elem) {
     call_cont (req, func);
 }
 
-function make_input (content, edit_cont, text_span, target_elem) {
+function make_input (content, edit_cont, target_elem) {
+    var text_span = document.createElement ("span");
+    text_span.className = "task-desc";
+    var text = document.createTextNode (content);
+
+    text_span.appendChild (text);
+    target_elem.appendChild (text_span);
+
     var form = document.createElement ("form");
     form.style.display = "none";
 
@@ -195,30 +202,26 @@ function gen_task (cont, target_elem) {
 	var nodes = dom.documentElement.childNodes;
 	var elems = filter_element_nodes (nodes);
 	var content = elems[0].firstChild.nodeValue;
-	var text_span = document.createElement ("span");
-	text_span.className = "task-desc";
-	var text = document.createTextNode (content);
 
-	text_span.appendChild (text);
-	target_elem.appendChild (text_span);
-
-
-	var input = make_input (content, elems[1].firstChild.nodeValue,
-				text_span, target_elem);
+	make_input (content, elems[1].firstChild.nodeValue,
+		    target_elem);
 
 
 	///////
-	make_action ("done", "[done]",
-		     elems[3].firstChild.nodeValue,
-		     click_done (target_elem, content), target_elem);
+	make_action ("done", "[done]", elems[3].firstChild.nodeValue,
+		     make_click_handler (target_elem, content, get_done_elem ()),
+		     target_elem);
+// 		     click_done (target_elem, content), target_elem);
 
-	make_action ("pending", "[suspend]",
-		     elems[4].firstChild.nodeValue,
-		     click_suspend (target_elem, content), target_elem);
+	make_action ("pending", "[suspend]", elems[4].firstChild.nodeValue,
+		     make_click_handler (target_elem, content, get_pending_elem ()),
+		     target_elem);
+// 		     click_suspend (target_elem, content), target_elem);
 
-	make_action ("cancel", "[cancel]",
-		     elems[2].firstChild.nodeValue,
-		     click_cancel (target_elem, content), target_elem);
+	make_action ("cancel", "[cancel]", elems[2].firstChild.nodeValue,
+		     make_click_handler (target_elem, content, get_canceled_elem ()),
+		     target_elem);
+// 		     click_cancel (target_elem, content), target_elem);
     };
 
     call_cont (cont, func);
@@ -258,11 +261,11 @@ function make_action (act_name, disp, cont, func, target_elem) {
     target_elem.appendChild (act);
 }
 
-function click_done (elem, content) {
+function make_click_handler (elem, content, target_list_elem) {
     var func = function (res) {
 	var par = elem.parentNode;
 	par.removeChild (elem);
-	append_to_simple_list (content, get_done_elem ());
+	append_to_simple_list (content, target_list_elem);
 
 
 	debug_out ("Done: "
@@ -271,36 +274,6 @@ function click_done (elem, content) {
 
     return function (cont, target_elem) {
 	debug_out ("DONE! " + [cont, target_elem]);
-	call_cont (cont, func);
-    };
-}
-
-function click_cancel (elem, content) {
-    var func = function (res) {
-	var par = elem.parentNode;
-	par.removeChild (elem);
-	append_to_simple_list (content, get_canceled_elem ());
-
-	debug_out ("Canceled: " + [res.documentElement, elem]);
-    };
-
-    return function (cont, target_elem) {
-	debug_out ("CANCEL! " + [cont, target_elem]);
-	call_cont (cont, func);
-    };
-}
-
-function click_suspend (elem, content) {
-    var func = function (res) {
-	var par = elem.parentNode;
-	par.removeChild (elem);
-	append_to_simple_list (content, get_pending_elem ());
-
-	debug_out ("Suspended: " + [res.documentElement, elem]);
-    };
-
-    return function (cont, target_elem) {
-	debug_out ("CANCEL! " + [cont, target_elem]);
 	call_cont (cont, func);
     };
 }
