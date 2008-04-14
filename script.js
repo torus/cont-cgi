@@ -166,6 +166,41 @@ function edit_submit (text, cont, input_elem, text_span_elem) {
     call_cont (req, func);
 }
 
+function make_input (content, edit_cont, text_span, target_elem) {
+    var form = document.createElement ("form");
+    form.style.display = "none";
+
+    var input = document.createElement ("input");
+    input.setAttribute ("type", "text");
+    input.setAttribute ("value", content);
+    form.onsubmit = function () {
+	debug_out ("Edit -> " + input.value);
+
+	edit_submit (input.value, edit_cont, input, text_span);
+
+	return false;
+    };
+
+    ///////////
+    text_span.onclick = function () {
+	form.style.display = "inline";
+	text_span.style.display = "none";
+	input.focus ();
+    };
+
+    ////////
+    input.onblur = function () {
+	form.style.display = "none";
+	text_span.style.display = "inline";
+	debug_out ("blur: " + input);
+    }
+
+    form.appendChild (input);
+    target_elem.appendChild (form);
+
+    return input;
+}
+
 function gen_task (cont, target_elem) {
     var func = function (dom) {
 	var nodes = dom.documentElement.childNodes;
@@ -178,39 +213,10 @@ function gen_task (cont, target_elem) {
 	text_span.appendChild (text);
 	target_elem.appendChild (text_span);
 
-	var form = document.createElement ("form");
-	form.style.display = "none";
 
-	////////////
-	var input = document.createElement ("input");
-	input.setAttribute ("type", "text");
-	input.setAttribute ("value", content);
-	form.onsubmit = function () {
-	    debug_out ("Edit -> " + input.value);
+	var input = make_input (content, elems[1].firstChild.nodeValue,
+				text_span, target_elem);
 
-	    var edit_cont = elems[1].firstChild.nodeValue;
-
-	    edit_submit (input.value, edit_cont, input, text_span);
-
-	    return false;
-	};
-
-	///////////
-	text_span.onclick = function () {
-	    form.style.display = "inline";
-	    text_span.style.display = "none";
-	    input.focus ();
-	};
-
-	////////
-	input.onblur = function () {
-	    form.style.display = "none";
-	    text_span.style.display = "inline";
-	    debug_out ("blur: " + input);
-	}
-
-	form.appendChild (input);
-	target_elem.appendChild (form);
 
 	///////
 	make_action ("done", "[done]",
