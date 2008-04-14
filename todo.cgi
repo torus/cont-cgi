@@ -58,6 +58,9 @@
      ;; suspend
      ((cont-lambda (index) (task-suspend! index)) index)
 
+     ;; resume
+     ((cont-lambda (index) (task-resume! index)) index)
+
      )
     ))
 
@@ -107,6 +110,11 @@
 
 (define (task-suspend! key)
   (set-car! (get-task key) 'pending)
+  (write-data)
+  '((ok)))
+
+(define (task-resume! key)
+  (set-car! (get-task key) 'todo)
   (write-data)
   '((ok)))
 

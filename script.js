@@ -21,7 +21,7 @@ var ul_elem_pending;
 
 call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task, set_todo_elem));
 call_cont (cont_pendinglist,
-	   make_tasklist_func ("PENDING", gen_task_done, set_pending_elem));
+	   make_tasklist_func ("PENDING", gen_task_pending, set_pending_elem));
 call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done, set_done_elem));
 call_cont (cont_canceledlist,
 	   make_tasklist_func ("CANCELED", gen_task_done, set_canceled_elem));
@@ -234,6 +234,23 @@ function gen_task_done (cont, target_elem) {
 	var text = document.createTextNode (content);
 
 	target_elem.appendChild (text);
+    };
+
+    call_cont (cont, func);
+}
+
+function gen_task_pending (cont, target_elem) {
+    var func = function (dom) {
+	var nodes = dom.documentElement.childNodes;
+	var elems = filter_element_nodes (nodes);
+	var content = elems[0].firstChild.nodeValue;
+	var text = document.createTextNode (content);
+
+	target_elem.appendChild (text);
+
+	make_action ("resume", "[resume]", elems[5].firstChild.nodeValue,
+		     make_click_handler (target_elem, content, get_todo_elem ()),
+		     target_elem);
     };
 
     call_cont (cont, func);
