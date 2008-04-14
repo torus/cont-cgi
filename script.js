@@ -20,9 +20,11 @@ var ul_elem_canceled;
 var ul_elem_pending;
 
 call_cont (cont_tasklist, make_tasklist_func ("TODO", gen_task, set_todo_elem));
-call_cont (cont_pendinglist, make_tasklist_func ("PENDING", gen_task_done, set_pending_elem));
+call_cont (cont_pendinglist,
+	   make_tasklist_func ("PENDING", gen_task_done, set_pending_elem));
 call_cont (cont_donelist, make_tasklist_func ("DONE", gen_task_done, set_done_elem));
-call_cont (cont_canceledlist, make_tasklist_func ("CANCELED", gen_task_done, set_canceled_elem));
+call_cont (cont_canceledlist,
+	   make_tasklist_func ("CANCELED", gen_task_done, set_canceled_elem));
 
 function set_todo_elem (elem) {
     ul_elem_todo = elem;
@@ -211,29 +213,17 @@ function gen_task (cont, target_elem) {
 	make_action ("done", "[done]", elems[3].firstChild.nodeValue,
 		     make_click_handler (target_elem, content, get_done_elem ()),
 		     target_elem);
-// 		     click_done (target_elem, content), target_elem);
 
 	make_action ("pending", "[suspend]", elems[4].firstChild.nodeValue,
 		     make_click_handler (target_elem, content, get_pending_elem ()),
 		     target_elem);
-// 		     click_suspend (target_elem, content), target_elem);
 
 	make_action ("cancel", "[cancel]", elems[2].firstChild.nodeValue,
 		     make_click_handler (target_elem, content, get_canceled_elem ()),
 		     target_elem);
-// 		     click_cancel (target_elem, content), target_elem);
     };
 
     call_cont (cont, func);
-}
-
-function append_to_simple_list (content, ul_elem) {
-    var li = document.createElement ("li");
-    var text = document.createTextNode (content);
-
-    li.appendChild (text);
-
-    ul_elem.insertBefore (li, ul_elem.firstChild);
 }
 
 function gen_task_done (cont, target_elem) {
@@ -247,6 +237,15 @@ function gen_task_done (cont, target_elem) {
     };
 
     call_cont (cont, func);
+}
+
+function append_to_simple_list (content, ul_elem) {
+    var li = document.createElement ("li");
+    var text = document.createTextNode (content);
+
+    li.appendChild (text);
+
+    ul_elem.insertBefore (li, ul_elem.firstChild);
 }
 
 function make_action (act_name, disp, cont, func, target_elem) {
