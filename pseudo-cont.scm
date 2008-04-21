@@ -1,5 +1,6 @@
 (define-module pseudo-cont
-  (export pcont-lambda))
+  (export pcont-lambda do-continuation))
+(select-module pseudo-cont)
 
 (define *COUNT* 0)
 
@@ -21,6 +22,6 @@
 	       (cut write `(,,index ,@x)))))))
 
 (define-macro (pcont-lambda args . body)
-  `(make-cont (lambda ,args ,@body)))
+  `(with-module pseudo-cont (make-cont (lambda ,args ,@body))))
 
 (provide "pseudo-cont")
