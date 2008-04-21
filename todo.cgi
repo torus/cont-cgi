@@ -8,58 +8,39 @@
 (use text.tree)
 (use sxml.serializer)
 
-(define *COUNT* 0)
-
-(define *cont-vec* (make-vector 20))
-
-(define (do-continuation index . args)
-  (apply (vector-ref *cont-vec* index) args))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; macros
-
-(define-macro (make-cont proc)
-  (let1 index *COUNT*
-    (inc! *COUNT*)
-    (vector-set! *cont-vec* index (eval proc ()))
-    `(lambda x
-       (list 'cont
-	     (with-output-to-string
-	       (cut write `(,,index ,@x)))))))
-
-(define-macro (cont-lambda args . body)
-  `(make-cont (lambda ,args ,@body)))
+(add-load-path ".")
+(use pseudo-cont)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; definitions
 
 (define proccess-task
-  (cont-lambda (cmd index)
+  (pcont-lambda (cmd index)
     (case cmd
       ((edit) (task-edit! index newcontent))
       ((cancel) (task-cancel! index)))))
 
 (define show-task
-  (cont-lambda (index)
+  (pcont-lambda (index)
     (list
      (list 'content (task-content index))
 
      ;; edit
-     ((cont-lambda (index newcontent)
+     ((pcont-lambda (index newcontent)
 	(task-edit! index newcontent))
       index "?")
 
      ;; cancel
-     ((cont-lambda (index) (task-cancel! index)) index)
+     ((pcont-lambda (index) (task-cancel! index)) index)
 
      ;; done
-     ((cont-lambda (index) (task-done! index)) index)
+     ((pcont-lambda (index) (task-done! index)) index)
 
      ;; suspend
-     ((cont-lambda (index) (task-suspend! index)) index)
+     ((pcont-lambda (index) (task-suspend! index)) index)
 
      ;; resume
-     ((cont-lambda (index) (task-resume! index)) index)
+     ((pcont-lambda (index) (task-resume! index)) index)
 
      )
     ))
@@ -155,19 +136,19 @@
 			 (html:input :type "text" :id "create-content")))
 		(html:div :id "main")
 		(html:div :id "cont-list" :class "invisible"
-			  (tree->string (cdr ((cont-lambda () (task-list 'todo))))))
+			  (tree->string (cdr ((pcont-lambda () (task-list 'todo))))))
 		(html:div :id "cont-list-done" :class "invisible"
-			  (tree->string (cdr ((cont-lambda () (task-list 'done))))))
+			  (tree->string (cdr ((pcont-lambda () (task-list 'done))))))
 		(html:div :id "cont-list-canceled" :class "invisible"
-			  (tree->string (cdr ((cont-lambda () (task-list 'canceled))))))
+			  (tree->string (cdr ((pcont-lambda () (task-list 'canceled))))))
 		(html:div :id "cont-list-pending" :class "invisible"
-			  (tree->string (cdr ((cont-lambda () (task-list 'pending))))))
+			  (tree->string (cdr ((pcont-lambda () (task-list 'pending))))))
 		(html:div :id "cont-create" :class "invisible"
-			  (tree->string (cdr ((cont-lambda (x) (task-create! x)) "?"))))
+			  (tree->string (cdr ((pcont-lambda (x) (task-create! x)) "?"))))
 		(html:pre :id "debug")
 		(html:script :src "./script.js")
 		)
 	       )))))))
 
 ;;;
-;; (put 'cont-lambda 'scheme-indent-function 1)
+;; (put 'pcont-lambda 'scheme-indent-function 1)
