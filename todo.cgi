@@ -66,8 +66,13 @@
   (guard (e (else '()))
 	 (with-input-from-file *file* read)))
 
+(define (tmpfile)
+  (string-append *file* "." (number->string (sys-getpid))))
+
 (define (write-data)
-  (with-output-to-file *file* (cut write *tasks*)))
+  (let1 tmp (tmpfile)
+    (with-output-to-file tmp (cut write *tasks*))
+    (sys-rename tmp *file*)))
 
 (define (get-task key) (assoc-ref *tasks* key))
 
