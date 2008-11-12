@@ -6,6 +6,9 @@
 
 (define *cont-vec* (make-vector 20))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; continuation invocation
+
 (define (do-continuation index . args)
   (apply (vector-ref *cont-vec* index) args))
 
@@ -23,5 +26,8 @@
 
 (define-macro (pcont-lambda args . body)
   `(with-module pseudo-cont (make-cont (lambda ,args ,@body))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide "pseudo-cont")
