@@ -70,11 +70,14 @@ function debug_out (txt) {
     elem.appendChild(textelem);
 }
 
-function make_tasklist_func (label, task_func, elem_setter) {
+function make_tasklist_func (label, task_func, elem_setter, max) {
     var dest = document.getElementById ("main");
 //     debug_out ("dest: " + dest);
     var todo_h2 = document.createElement ("h2");
     var todo_label = document.createTextNode (label);
+
+    if (!max) max = 20;
+
     todo_h2.appendChild (todo_label);
     dest.appendChild (todo_h2);
     var ul = document.createElement ("ul");
@@ -84,21 +87,30 @@ function make_tasklist_func (label, task_func, elem_setter) {
 
     return function (res) {
 	var nodes = res.documentElement.childNodes;
+	var num = 0;
 
 	if (nodes.length > 0) {
 // 	    debug_out (nodes.length);
-	    for (var i = 0; i < nodes.length; i ++) {
-		if (nodes[i].nodeType != 1) continue;
+	    var loop = function (i) {
+		if (i == nodes.length) return;
 
-		var cont = nodes[i].firstChild.nodeValue;
+		if (nodes[i].nodeType == 1) {
+		    num ++;
+		    var cont = nodes[i].firstChild.nodeValue;
 
-		var li = document.createElement ("li");
-		li.className = "color-" + (i % 5);
-		ul.appendChild (li);
+		    var li = document.createElement ("li");
+		    li.className = "color-" + (i % 5);
+		    ul.appendChild (li);
 
-		task_func (cont, li);
-	    }
+		    task_func (cont, li);
+		}
+		return (function (n) {return function () {return loop (n)};}) (i + 1);
+	    };
+	    var loopcont = function () {return loop (0)};
+	    while ((num < max) && (loopcont = loopcont ())) {}
 	}
+
+	todo_label.nodeValue = label + " (" + num + ")";
     }
 }
 
